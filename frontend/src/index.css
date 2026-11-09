@@ -1,0 +1,151 @@
+
+/* Google Fonts */
+@import url("https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=IM+Fell+English&display=swap");
+
+
+/* Global theme */
+:root {
+  font-family: "Caveat", cursive;
+
+  color: #30271f;
+  background: #f2e6cd;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+
+  /* Antique cartography palette */
+  --parchment: #f2e6cd;
+  --parchment-light: #f8eed9;
+  --parchment-dark: #d8c39f;
+
+  --ink: #30271f;
+  --ink-muted: #66513d;
+  --ink-light: #806b53;
+
+  --border: #a58d70;
+
+  --dem-blue: #526f89;
+  --rep-red: #a75a4a;
+  --neutral: #b6a5ad;
+}
+
+/* Universal reset */
+* {
+  box-sizing: border-box;
+}
+
+/* Full-page parchment background */
+html {
+  width: 100%;
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+
+  background:
+    radial-gradient(
+      ellipse at 50% 30%,
+      #f8eed9 0%,
+      #f2e6cd 45%,
+      #ead9ba 75%,
+      #d8c39f 100%
+    );
+
+  color: var(--ink);
+}
+
+/* React application container */
+#root {
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* Headings */
+h1,
+h2,
+h3 {
+  font-family: "IM Fell English", Georgia, serif;
+  font-weight: 400;
+  color: var(--ink);
+  margin-top: 0;
+}
+
+h2 {
+  letter-spacing: -0.02em;
+}
+
+/* Paragraphs */
+p {
+  margin-top: 0;
+  color: var(--ink-muted);
+}
+
+/* Buttons and form elements */
+button,
+select,
+input,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+/* Links */
+a {
+  color: var(--ink);
+  text-decoration-color: var(--border);
+}
+
+a:hover {
+  color: var(--rep-red);
+}
+
+/* Highlighted text */
+::selection {
+  background: #f0ede7;
+  color: #30271f;
+}
+
+/* Consistent handwritten labels */
+label,
+small {
+  font-family: "Caveat", cursive;
+}
+@font-face {
+  font-family: "SophieComic";
+  src: url("./assets/fonts/SophieComic.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Responsive images and SVGs */
+img {
+  max-width: 100%;
+}
+
+/* Smooth transitions */
+button,
+a,
+select {
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}

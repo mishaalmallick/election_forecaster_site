@@ -1,0 +1,163 @@
+
+.forecast-card {
+  width: 100%;
+  max-width: 650px;
+  padding: 28px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  color: #111827;
+  font-family: Inter, Arial, sans-serif;
+}
+
+.forecast-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.forecast-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  color: #64748b;
+}
+
+.forecast-card-header h2 {
+  margin: 8px 0 0;
+  font-size: 30px;
+}
+
+.race-rating {
+  padding: 7px 12px;
+  border-radius: 20px;
+  background: #f1f5f9;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.forecast-candidates {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.candidate {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.candidate-party {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.candidate-dem .candidate-party,
+.candidate-dem .candidate-probability {
+  color: #2563eb;
+}
+
+.candidate-rep .candidate-party,
+.candidate-rep .candidate-probability {
+  color: #dc2626;
+}
+
+.candidate strong {
+  font-size: 15px;
+}
+
+.candidate-probability {
+  font-size: 40px;
+  font-weight: 750;
+  letter-spacing: -1.5px;
+}
+
+.candidate-caption,
+.stat-description {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.forecast-probability-section {
+  margin: 28px 0;
+}
+
+.probability-bar {
+  display: flex;
+  width: 100%;
+  height: 16px;
+  overflow: hidden;
+  border-radius: 10px;
+  background: #e5e7eb;
+}
+
+.probability-dem {
+  background: #2563eb;
+}
+
+.probability-rep {
+  background: #dc2626;
+}
+
+.probability-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  color: #64748b;
+  font-size: 12px;
+}
+
+.forecast-statistics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  padding-top: 22px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.forecast-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stat-label {
+  color: #64748b;
+  font-size: 12px;
+}
+
+.forecast-stat strong {
+  font-size: 22px;
+}
+
+.forecast-card-footer {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+@media (max-width: 480px) {
+  .forecast-card {
+    padding: 18px;
+  }
+
+  .forecast-card-header {
+    flex-direction: column;
+  }
+
+  .candidate-probability {
+    font-size: 30px;
+  }
+
+  .forecast-statistics {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,648 @@
+
+/* =========================================
+   TEOT — ANTIQUE ELECTION ATLAS
+   ========================================= */
+
+/* -----------------------------------------
+   MAIN LAYOUT
+   ----------------------------------------- */
+@import url("https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=IM+Fell+English&display=swap");
+
+.app-shell {
+  width: 100%;
+  max-width: none;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0 32px 48px;
+  background: transparent;
+  color: var(--ink, #30271f);
+}
+
+/* -----------------------------------------
+   HERO / HEADER
+   ----------------------------------------- */
+
+
+/* =========================================
+   ANTIQUE ATLAS HEADER
+   ========================================= */
+
+.hero {
+  position: relative;
+  width: 100%;
+  padding: 22px 24px 16px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  color: #30271f;
+  text-align: center;
+  overflow: hidden;
+}
+
+/* Remove old decorative circle */
+.hero::after {
+  display: none;
+}
+
+/* Top branding */
+.hero-top {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+.brand-mark {
+  font-family: "IM Fell English", Georgia, serif;
+  font-size: 18px;
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  color: #30271f;
+}
+
+.brand-mark span {
+  font-family: "Caveat", cursive;
+  font-size: 15px;
+  letter-spacing: 0.05em;
+  color: #806b53;
+}
+
+/* Main atlas title */
+.hero-content {
+  position: relative;
+  z-index: 1;
+  max-width: 100%;
+  padding: 28px 0 24px;
+  margin: 0 auto;
+}
+
+.hero .eyebrow {
+  font-family: "Caveat", cursive;
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: #806b53;
+}
+
+.hero h1 {
+  font-family: "IM Fell English", Georgia, serif;
+  font-size: clamp(42px, 5vw, 72px);
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: #30271f;
+  margin: 12px 0 14px;
+}
+
+.hero h1 em {
+  color: #a75a4a;
+  font-style: italic;
+}
+
+.hero-content p {
+  font-family: "Caveat", cursive;
+  font-size: 23px;
+  line-height: 1.35;
+  color: #66513d;
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+/* Thin divider beneath title */
+.hero-bottom {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px 30px;
+
+  border-top: 1px solid #a58d70;
+  border-bottom: 1px solid #a58d70;
+
+  padding: 12px 0;
+  margin-top: 12px;
+
+  font-family: "Caveat", cursive;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #806b53;
+}
+
+/* Responsive header */
+@media (max-width: 600px) {
+  .hero {
+    padding: 18px 8px 12px;
+  }
+
+  .hero-content {
+    padding: 20px 0;
+  }
+
+  .hero h1 {
+    font-size: 42px;
+  }
+
+  .hero-content p {
+    font-size: 20px;
+  }
+
+  .hero-bottom {
+    font-size: 14px;
+    gap: 8px 18px;
+  }
+}
+
+
+/* -----------------------------------------
+   DATA SOURCE NOTICE
+   ----------------------------------------- */
+
+.source-banner {
+  padding: 15px 19px;
+
+  border: 1px solid #a58d70;
+  border-radius: 3px;
+
+  background: rgba(248, 238, 217, 0.7);
+  color: #66513d;
+
+  font-family: "Caveat", cursive;
+  font-size: 18px;
+  line-height: 1.4;
+
+  margin: 22px 0;
+}
+
+/* -----------------------------------------
+   NAVIGATION TABS
+   ----------------------------------------- */
+
+.view-tabs {
+  display: flex;
+  gap: 6px;
+
+  padding: 5px;
+  border: 1px solid #a58d70;
+  border-radius: 3px;
+
+  background: rgba(216, 195, 159, 0.35);
+
+  width: fit-content;
+  margin: 26px 0;
+}
+
+.view-tabs button {
+  border: 1px solid transparent;
+  border-radius: 2px;
+  background: transparent;
+
+  padding: 12px 24px;
+
+  font-family: "Caveat", cursive;
+  font-size: 21px;
+  font-weight: 600;
+
+  color: #66513d;
+}
+
+.view-tabs button:hover {
+  background: rgba(216, 195, 159, 0.55);
+}
+
+.view-tabs button.active {
+  background: #f8eed9;
+  color: #30271f;
+
+  border-color: #a58d70;
+  box-shadow: 2px 3px 0 rgba(82, 61, 41, 0.08);
+}
+
+/* -----------------------------------------
+   FULL-WIDTH SENATE MAP
+   ----------------------------------------- */
+
+.senate-map-container {
+  width: 100%;
+  max-width: none !important;
+  min-height: 85vh;
+
+  margin: 0;
+  padding: 30px 24px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  background: rgba(248, 238, 217, 0.2);
+
+  border: 1px solid #a58d70;
+  border-radius: 3px;
+
+  box-shadow: none;
+}
+
+.senate-map-container svg {
+  display: block;
+
+  width: 100%;
+  height: auto;
+  max-height: 85vh;
+
+  margin: 0 auto;
+}
+
+/* -----------------------------------------
+   STATE SELECTION
+   ----------------------------------------- */
+
+.control-panel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+
+  margin: 35px 0 16px;
+  padding: 24px 28px;
+
+  background: rgba(248, 238, 217, 0.65);
+  border: 1px solid #a58d70;
+  border-radius: 3px;
+}
+
+.control-panel h2 {
+  font-family: "IM Fell English", Georgia, serif;
+  font-size: 34px;
+  font-weight: 400;
+
+  color: #30271f;
+  margin: 5px 0;
+}
+
+.control-panel select {
+  border: 1px solid #806b53;
+  background: #f8eed9;
+
+  border-radius: 2px;
+  padding: 12px 18px;
+
+  min-width: 220px;
+
+  font-family: "Caveat", cursive;
+  font-size: 20px;
+  color: #30271f;
+}
+
+/* -----------------------------------------
+   FORECAST TIMELINE
+   ----------------------------------------- */
+
+.date-panel {
+  border: 1px solid #a58d70;
+  border-radius: 3px;
+
+  background: rgba(248, 238, 217, 0.75);
+
+  padding: 23px 28px;
+  margin: 18px 0 26px;
+
+  color: #30271f;
+}
+
+.date-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.date-top h3 {
+  font-family: "IM Fell English", Georgia, serif;
+  font-size: 26px;
+  font-weight: 400;
+
+  margin: 7px 0 12px;
+}
+
+.date-top strong {
+  font-family: "Caveat", cursive;
+  font-size: 22px;
+  color: #66513d;
+}
+
+.date-panel input[type="range"] {
+  width: 100%;
+  accent-color: #806b53;
+  margin: 14px 0;
+}
+
+.date-extremes {
+  display: flex;
+  justify-content: space-between;
+
+  font-family: "Caveat", cursive;
+  font-size: 17px;
+  color: #806b53;
+}
+
+.date-panel p {
+  font-family: "Caveat", cursive;
+  font-size: 17px;
+  line-height: 1.5;
+
+  color: #806b53;
+  margin: 16px 0 0;
+}
+
+/* -----------------------------------------
+   FORECAST CARD AND CHARTS
+   ----------------------------------------- */
+
+.forecast-card {
+  width: 100%;
+  max-width: none !important;
+}
+
+.chart-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 20px;
+}
+
+.chart-grid > * {
+  min-width: 0;
+}
+
+.chart-grid .polling-chart-container,
+.chart-grid .uncertainty-chart-container {
+  margin: 22px 0;
+}
+
+/* Shared parchment panels */
+.forecast-card,
+.polling-chart-container,
+.uncertainty-chart-container,
+.seat-distribution-container {
+  background: rgba(248, 238, 217, 0.8);
+  border: 1px solid #a58d70;
+  border-radius: 3px;
+
+  box-shadow: 3px 4px 0 rgba(82, 61, 41, 0.08);
+
+  color: #30271f;
+}
+
+/* -----------------------------------------
+   NATIONAL OUTCOMES
+   ----------------------------------------- */
+
+.section-intro {
+  padding: 36px 0 12px;
+}
+
+.section-intro h2 {
+  font-family: "IM Fell English", Georgia, serif;
+  font-size: 48px;
+  font-weight: 400;
+
+  color: #30271f;
+  margin: 10px 0;
+}
+
+.section-intro p {
+  font-family: "Caveat", cursive;
+  font-size: 22px;
+  color: #66513d;
+}
+
+/* -----------------------------------------
+   FOOTER
+   ----------------------------------------- */
+
+.site-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+
+  border-top: 1px solid #a58d70;
+
+  padding: 26px 0;
+  margin-top: 50px;
+
+  font-family: "Caveat", cursive;
+  font-size: 17px;
+  color: #806b53;
+}
+
+/* -----------------------------------------
+   ERROR SCREEN
+   ----------------------------------------- */
+
+.error-panel {
+  max-width: 700px;
+  margin: 100px auto;
+
+  background: #f8eed9;
+  border: 1px solid #a58d70;
+  border-radius: 3px;
+
+  padding: 40px;
+  line-height: 1.8;
+}
+
+.error-panel button {
+  background: #806b53;
+  color: #f8eed9;
+
+  border: 1px solid #5c4938;
+  border-radius: 2px;
+
+  padding: 12px 20px;
+}
+
+/* -----------------------------------------
+   LOADING SCREEN
+   ----------------------------------------- */
+
+.loading {
+  display: grid;
+  place-content: center;
+
+  min-height: 70vh;
+  text-align: center;
+
+  color: #66513d;
+}
+
+.loading-orbit {
+  height: 40px;
+  width: 40px;
+
+  border: 3px solid #d8c39f;
+  border-top-color: #806b53;
+  border-radius: 50%;
+
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 20px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* -----------------------------------------
+   RESPONSIVE DESIGN
+   ----------------------------------------- */
+
+@media (max-width: 900px) {
+  .app-shell {
+    padding: 0 14px 30px;
+  }
+
+  .hero {
+    padding: 20px 12px 0;
+  }
+
+  .hero-content {
+    padding: 65px 0;
+  }
+
+  .hero-bottom {
+    font-size: 14px;
+  }
+
+  .chart-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .control-panel {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .control-panel select {
+    width: 100%;
+  }
+
+  .brand-mark span {
+    display: none;
+  }
+
+  .senate-map-container {
+    min-height: auto;
+    padding: 20px 12px;
+  }
+
+  .senate-map-container svg {
+    max-height: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .hero h1 {
+    font-size: 46px;
+  }
+
+  .hero-content p {
+    font-size: 20px;
+  }
+
+  .control-panel,
+  .date-panel {
+    padding: 18px;
+  }
+
+  .site-footer {
+    flex-direction: column;
+  }
+}
+
+/* -----------------------------------------
+   ACCESSIBILITY
+   ----------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+
+/* Antique atlas typography */
+.hero h1,
+.section-intro h2,
+.control-panel h2,
+.date-top h3,
+.map-heading h2 {
+  font-family: "IM Fell English", Georgia, serif;
+  color: #30271f;
+  font-weight: 400;
+}
+
+.hero p,
+.section-intro p,
+.control-panel p,
+.date-panel p {
+  color: #66513d;
+}
+
+/* Paper panels */
+.control-panel,
+.date-panel,
+.chart-grid > *,
+.section-intro,
+.error-panel {
+  background: rgba(248, 238, 217, 0.75);
+  border: 1px solid #a58d70;
+  border-radius: 3px;
+  box-shadow: 3px 4px 0 rgba(82, 61, 41, 0.08);
+  color: #30271f;
+}
+
+/* Handwritten annotations */
+.eyebrow,
+.date-extremes,
+.map-legend,
+.site-footer {
+  font-family: "Caveat", cursive;
+  letter-spacing: 0.5px;
+}
+
+/* Vintage buttons */
+.view-tabs button,
+.control-panel select,
+.error-panel button {
+  background: transparent;
+  border: 1px solid #806b53;
+  border-radius: 2px;
+  color: #30271f;
+  font-family: "Caveat", cursive;
+  font-size: 1.3rem;
+  cursor: pointer;
+}
+
+.view-tabs button:hover,
+.view-tabs button.active {
+  background: #d8c39f;
+  color: #30271f;
+}
+
+/* Vintage timeline slider */
+.date-panel input[type="range"] {
+  accent-color: #806b53;
+}
+
+/* Paper-colored dividers */
+.site-footer {
+  border-top: 1px solid #a58d70;
+  color: #66513d;
+}
+

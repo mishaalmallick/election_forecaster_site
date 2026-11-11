@@ -20,10 +20,8 @@ export default function Overview() {
   const [dateIndex, setDateIndex] = useState(0);
   const [tab, setTab] = useState<"states" | "national">("states");
 
-  // Fetch forecast data when the page loads.
   useEffect(() => {
     const controller = new AbortController();
-
     fetchOverview(controller.signal)
       .then((result) => {
         console.log("Number of races:", result.races.length);
@@ -47,26 +45,21 @@ export default function Overview() {
     return () => controller.abort();
   }, []);
 
-  // Currently selected state and forecast date.
   const race = data?.races.find(
     (r) => r.state_code === selected
   );
 
   const date = data?.dates[dateIndex] ?? "";
-
-  // Retrieve the most recent forecast snapshot
-  // available on the selected date.
   const stateForecast = useMemo(() => {
-    if (!race) return null;
+    if (!race) 
+      return null;
 
     const point = race.history
       ?.filter((p) => p.date <= date)
       .at(-1);
 
-    if (!point) return race;
-
-    // Historical snapshots contain margin bands,
-    // but not historical win probabilities.
+    if (!point) 
+      return race;
     return {
       ...race,
       predicted_margin: point.predicted_margin,
@@ -75,21 +68,13 @@ export default function Overview() {
     };
   }, [race, date]);
 
-  // API error screen.
-  if (error) {
+  if (error) { // debug help 
     return (
       <main className="app-shell">
         <div className="error-panel">
           <h1>Cannot reach the forecast API</h1>
 
           <p>{error}</p>
-
-          <p>
-            Start the Python API with{" "}
-            <code>python3 backend/api/server.py</code>{" "}
-            from the TEOT directory, then reload.
-          </p>
-
           <button onClick={() => window.location.reload()}>
             Retry connection
           </button>
@@ -98,25 +83,11 @@ export default function Overview() {
     );
   }
 
-  // Loading screen.
-  if (!data) {
-    return (
-      <main className="app-shell loading">
-        <div className="loading-orbit" />
-        <p>Connecting to the forecast service…</p>
-      </main>
-    );
-  }
 
   const isDemo = data.source === "demo";
 
   return (
     <main className="app-shell">
-
-
-      {/* =========================
-          VIEW NAVIGATION
-      ========================= */}
       <nav
         className="view-tabs"
         aria-label="Dashboard view"
@@ -135,10 +106,6 @@ export default function Overview() {
           National Outcomes
         </button>
       </nav>
-
-      {/* =========================
-          MAIN CONTENT
-      ========================= */}
       <AnimatePresence mode="wait">
         {tab === "states" ? (
           <motion.div
@@ -148,14 +115,11 @@ export default function Overview() {
             exit={{ opacity: 0, y: -12 }}
             transition={{ duration: 0.32 }}
           >
-            {/* Interactive Senate map */}
             <SenateMap
               races={data.races}
               selected={selected}
               onSelect={setSelected}
             />
-
-            {/* State selector */}
             <section className="control-panel">
               <div>
                 <span className="eyebrow">
@@ -164,7 +128,6 @@ export default function Overview() {
 
                 <h2>State deep dive</h2>
               </div>
-
               <select
                 aria-label="Select a state"
                 value={selected}
@@ -182,20 +145,13 @@ export default function Overview() {
                 ))}
               </select>
             </section>
-
-            {/* Forecast timeline */}
             <div className="date-panel">
               <div className="date-top">
                 <div>
-                  <span className="eyebrow">
-                    TIME MACHINE
-                  </span>
-
                   <h3>
-                    Explore the forecast timeline
+                    Explore forecast timeline
                   </h3>
                 </div>
-
                 <strong>{date}</strong>
               </div>
 
@@ -203,10 +159,7 @@ export default function Overview() {
                 aria-label="Forecast date"
                 type="range"
                 min="0"
-                max={Math.max(
-                  0,
-                  data.dates.length - 1
-                )}
+                max={Math.max(0,data.dates.length - 1)}
                 value={dateIndex}
                 onChange={(e) =>
                   setDateIndex(Number(e.target.value))
@@ -217,17 +170,7 @@ export default function Overview() {
                 <span>{data.dates[0]}</span>
                 <span>{data.dates.at(-1)}</span>
               </div>
-
-              <p>
-                Timeline updates predicted margins
-                and charts. Historical win probabilities
-                are unavailable in this prototype, so
-                the card probability remains the latest
-                illustrative value.
-              </p>
             </div>
-
-            {/* Selected state forecasts and charts */}
             {race && stateForecast && (
               <AnimatePresence mode="wait">
                 <motion.div
@@ -237,8 +180,6 @@ export default function Overview() {
                   exit={{ opacity: 0, y: -12 }}
                   transition={{ duration: 0.32 }}
                 >
-             
-
                   <div className="chart-grid">
                     <PollingChart
                       state={race.state}
@@ -246,7 +187,6 @@ export default function Overview() {
                         (p) => p.date <= date
                       )}
                     />
-
                     <UncertaintyChart
                       state={race.state}
                       data={(race.history ?? []).filter(
@@ -259,9 +199,6 @@ export default function Overview() {
             )}
           </motion.div>
         ) : (
-          /* =========================
-              NATIONAL OUTCOMES
-          ========================= */
           <motion.div
             key="national"
             initial={{ opacity: 0, y: 16 }}
@@ -269,9 +206,7 @@ export default function Overview() {
             exit={{ opacity: 0, y: -12 }}
             transition={{ duration: 0.32 }}
           >
-
-
-            <SeatDistribution
+            <SeatDistribution // fixed syntax issue
               data={
                 data.national.seat_distribution ?? []
               }
@@ -286,11 +221,6 @@ export default function Overview() {
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* =========================
-          FOOTER
-      ========================= */}
-
     </main>
   );
 }

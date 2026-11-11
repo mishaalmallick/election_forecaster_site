@@ -5,9 +5,7 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import Ridge
 
-from backend.forecasting.build_features import (
-    build_forecast_features,
-    build_historical_features,
+from backend.models.features import (build_forecast_features,build_historical_features,
 )
 
 
@@ -21,42 +19,13 @@ FUNDAMENTAL_FEATURES = [
     "president_party",
 ]
 
-
-def fit_fundamentals_model(historical_df, alpha=10.0):
-    required = FUNDAMENTAL_FEATURES + ["dem_margin"]
-    missing = set(required) - set(historical_df.columns)
-    if missing:
-        raise ValueError(f"Missing historical columns: {sorted(missing)}")
-
-    X = historical_df[FUNDAMENTAL_FEATURES]
-    y = historical_df["dem_margin"]
-
-    if X.isna().any().any() or y.isna().any():
-        raise ValueError("Historical training data contains missing values")
-
-    model = make_pipeline(
-        StandardScaler(),
-        Ridge(alpha=alpha)
-    )
-
-    model.fit(X, y)
-
-    return model
-
+## ridge regression
 
 def calculate_fundamentals_margin(features, model):
     df = features.copy()
-
-    missing = set(FUNDAMENTAL_FEATURES) - set(df.columns)
-
-    if missing:
-        raise ValueError(f"Missing forecast columns: {sorted(missing)}")
-
     X = df[FUNDAMENTAL_FEATURES]
-
     if X.isna().any().any():
         raise ValueError("Forecast features contain missing values")
-
     df["fundamentals_margin"] = model.predict(X)
 
     return df
@@ -70,43 +39,27 @@ def calculate_poll_blend_weight(features):
     poll_count = df["poll_count"].fillna(0)
     poll_factor = 1 - np.exp(-poll_count / 3)
 
-    df["poll_blend_weight"] = (
-        time_factor * poll_factor
-    ).clip(0, 1)
+    df["poll_blend_weight"] = (time_factor * poll_factor).clip(0, 1)
 
-    df.loc[
-        df["poll_margin"].isna(),
-        "poll_blend_weight"
-    ] = 0.0
-
+    df.loc[df["poll_margin"].isna(), "poll_blend_weight"] = 0.0
     return df
 
-
-def calculate_baseline_forecast(features, model):
-    df = calculate_fundamentals_margin(features, model)
-    df = calculate_poll_blend_weight(df)
-
-    alpha = df["poll_blend_weight"]
-
-    poll_margin = df["poll_margin"].fillna(
-        df["fundamentals_margin"]
-    )
-
-    df["predicted_margin"] = (
-        alpha * poll_margin
-        + (1 - alpha) * df["fundamentals_margin"]
-    )
-
-    return df
 
 
 def build_baseline_forecast(forecast_date):
     historical_df = build_historical_features(forecast_date=forecast_date)
-
-    model = fit_fundamentals_model(historical_df)
-
+    X = historical_df[FUNDAMENTAL_FEATURES]
+    y = historical_df["dem_margin"]
+    if X.isna().any().any() or y.isna().any():
+        raise ValueError("Historical training data contains missing values")
+    model = make_pipeline(StandardScaler(), Ridge(alpha=alpha))
+    model.fit(X, y)
     features = build_forecast_features(forecast_date)
-
+    df = calculate_fundamentals_margin(features, model)
+    df = calculate_poll_blend_weight(df)
+    alpha = df["poll_blend_weight"]
+    poll_margin = df["poll_margin"].fillna(df["fundamentals_margin"])
+    df["predicted_margin"] = (alpha * poll_margin+ (1 - alpha) * df["fundamentals_margin"])
     return calculate_baseline_forecast(features, model)
 
 

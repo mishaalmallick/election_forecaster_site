@@ -6,7 +6,7 @@ def require_source_columns(df, required, dataset):
     if missing:
         raise ValueError(f"{dataset}: missing columns {missing}")
 
-def normalize_historical_party(party):
+def normalize_historical_party(party): ## added helper function, some data inconsistent w ballot identification
     if pd.isna(party):
         return None
 
@@ -17,6 +17,9 @@ def normalize_historical_party(party):
         "DEMOCRATIC",
         "DEMOCRAT (NOT IDENTIFIED ON BALLOT)",
         "DEMOCRATIC/WORKING FAMILIES",
+        "DEMOCRATIC-FARMER-LABOR",
+        "DEMOCRATIC-NONPARTISAN LEAGUE",
+        "DEMOCRATIC-NPL",
     }
 
     republican_labels = {
@@ -35,7 +38,7 @@ def normalize_historical_party(party):
     return party
 
 
-def normalize_current_senate_polling_data(data):
+def normalize_current_senate_polling_data(data): ## edit, list 
     if isinstance(data, list):
         polls = data
     elif isinstance(data, dict):
@@ -278,25 +281,55 @@ def normalize_current_senate_polls_538(data):
     return df
 
 
-def normalize_historical_presidential_results(data):
-    df = data.copy()
+def normalize_historical_presidential_results(raw):
+    df = raw.copy()
 
     df = df.rename(columns={
         "year": "election_year",
         "state_po": "state_code",
-        "party_detailed": "party",
+        "party_simplified": "party",
         "candidatevotes": "candidate_votes",
         "totalvotes": "total_votes",
     })
 
-    require_source_columns(df, [
-        "election_year",
-        "state",
-        "candidate",
-        "party",
-        "candidate_votes",
-        "total_votes",
-    ], "historical presidential results")
+    df = df[
+        [
+            "election_year",
+            "state",
+            "state_code",
+            "candidate",
+            "party",
+            "candidate_votes",
+            "total_votes",
+        ]
+    ].copy()
+
+    df["state"] = df["state"].str.strip().str.upper()
+
+    df["party"] = (
+        df["party"]
+        .str.strip()
+        .str.upper()
+        .replace({
+            "DEMOCRAT": "DEM",
+            "REPUBLICAN": "REP",
+        })
+    )
+
+    df["candidate_votes"] = pd.to_numeric(
+        df["candidate_votes"],
+        errors="raise",
+    ).astype("int64")
+
+    df["total_votes"] = pd.to_numeric(
+        df["total_votes"],
+        errors="raise",
+    ).astype("int64")
+
+    df["election_year"] = pd.to_numeric(
+        df["election_year"],
+        errors="raise",
+    ).astype("int64")
 
     return df
 

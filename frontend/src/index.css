@@ -1,9 +1,7 @@
 
-/* Google Fonts */
 @import url("https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=IM+Fell+English&display=swap");
 
 
-/* Global theme */
 :root {
   font-family: "Caveat", cursive;
 
@@ -14,7 +12,6 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
 
-  /* Antique cartography palette */
   --parchment: #f2e6cd;
   --parchment-light: #f8eed9;
   --parchment-dark: #d8c39f;
@@ -30,12 +27,12 @@
   --neutral: #b6a5ad;
 }
 
-/* Universal reset */
+
 * {
   box-sizing: border-box;
 }
 
-/* Full-page parchment background */
+
 html {
   width: 100%;
   min-height: 100%;
@@ -58,13 +55,11 @@ body {
   color: var(--ink);
 }
 
-/* React application container */
 #root {
   width: 100%;
   min-height: 100vh;
 }
 
-/* Headings */
 h1,
 h2,
 h3 {
@@ -78,13 +73,11 @@ h2 {
   letter-spacing: -0.02em;
 }
 
-/* Paragraphs */
 p {
   margin-top: 0;
   color: var(--ink-muted);
 }
 
-/* Buttons and form elements */
 button,
 select,
 input,
@@ -106,13 +99,11 @@ a:hover {
   color: var(--rep-red);
 }
 
-/* Highlighted text */
 ::selection {
   background: #f0ede7;
   color: #30271f;
 }
 
-/* Consistent handwritten labels */
 label,
 small {
   font-family: "Caveat", cursive;
@@ -122,15 +113,13 @@ small {
   src: url("./assets/fonts/SophieComic.ttf") format("truetype");
   font-weight: 400;
   font-style: normal;
-  font-display: swap;
+  font-display: swap; /* remember to add */
 }
 
-/* Responsive images and SVGs */
 img {
   max-width: 100%;
 }
 
-/* Smooth transitions */
 button,
 a,
 select {
@@ -140,7 +129,6 @@ select {
     border-color 0.2s ease;
 }
 
-/* Accessibility */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

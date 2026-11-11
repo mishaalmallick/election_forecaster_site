@@ -1,12 +1,10 @@
 from datetime import date
 from sqlalchemy import select
-
-# Update these imports to match your project.
 from backend.data.database import SessionLocal
 from backend.data.database_model import Race
 
 
-def get_overview():
+def get_overview_races():
     with SessionLocal() as session:
         races = session.scalars(
             select(Race)

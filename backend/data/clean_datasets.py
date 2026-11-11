@@ -1,15 +1,20 @@
 import pandas as pd
 import numpy as np
+from backend.data.normalize_datasets import (
+    normalize_historical_election_data, normalize_historical_party
+)
+
+
 
 def require_columns(df, required, dataset="dataset"):
-    missing = [col for col in required if col not in df.columns]
+    missing = [col for col in required if col not in df.columns] ## changed condition to avoid errors 
     if missing:
         raise ValueError(
             f"{dataset}: missing required columns {missing}"
         )
     return df
 
-def require_values(df, columns, dataset="dataset"):
+def require_values(df, columns, dataset="dataset"): ##added dataset clause to fix postgres issue
     for col in columns:
         if df[col].isna().any():
             raise ValueError(
@@ -298,7 +303,6 @@ def clean_historical_senate_polls(df):
     return df
 
 
-
 def clean_2026_senate_races(df):
     df = df.copy()
 
@@ -503,56 +507,92 @@ def clean_current_senate_polls_538(df):
         "population",
     ])
 
-def clean_historical_presidential_results(df):
-    df = df.copy()
+def clean_historical_presidential_results(normalized):
+    df = normalized.copy()
 
-    required = [
-        "election_year",
-        "state",
-        "candidate",
-        "party",
-        "candidate_votes",
-        "total_votes",
+    # Keep major-party presidential results.
+    df = df[df["party"].isin(["DEM", "REP"])].copy()
+
+    # Remove invalid vote counts.
+    df = df[
+        (df["candidate_votes"] >= 0)
+        & (df["total_votes"] > 0)
+        & (df["candidate_votes"] <= df["total_votes"])
+    ].copy()
+
+    # Aggregate candidate votes by state, year, and party.
+    df = (
+        df.groupby(
+            [
+                "election_year",
+                "state",
+                "state_code",
+                "party",
+            ],
+            as_index=False,
+        )
+        .agg(
+            candidate_votes=("candidate_votes", "sum"),
+            total_votes=("total_votes", "first"),
+        )
+    )
+
+    # These rows represent party totals, not individual candidates.
+    df["candidate"] = None
+
+    # Check that major-party totals do not exceed all votes.
+    totals = df.groupby(
+        ["election_year", "state"]
+    )["candidate_votes"].transform("sum")
+
+    if (totals > df["total_votes"]).any():
+        raise ValueError(
+            "Major-party votes exceed total votes."
+        )
+
+    # Check for duplicate database-level keys.
+    keys = ["election_year", "state", "party"]
+
+    if df.duplicated(keys).any():
+        raise ValueError(
+            "Duplicate presidential party results found."
+        )
+
+    return df[
+        [
+            "election_year",
+            "state",
+            "state_code",
+            "candidate",
+            "party",
+            "candidate_votes",
+            "total_votes",
+        ]
     ]
 
-    require_columns(df, required)
+HISTORICAL_PARTY_OVERRIDES = {
+    ("2020-wy-regular", "CYNTHIA M. LUMMIS"): "REPUBLICAN",
+    ("2020-wy-regular", "MERAV BEN DAVID"): "DEMOCRAT",
 
-    df = clean_text(df, [
-        "state",
-        "state_code",
-        "candidate",
-        "party",
-    ])
+    ("2022-ak-regular", "CHESBRO, PATRICIA R."): "DEMOCRAT",
+    ("2022-ak-regular", "KELLEY, BUZZ A."): "REPUBLICAN",
+    ("2022-ak-regular", "MURKOWSKI, LISA"): "REPUBLICAN",
+    ("2022-ak-regular", "TSHIBAKA, KELLY C."): "REPUBLICAN",
 
-    df = clean_party(df)
+    ("2024-ms-regular", "ROGER F. WICKER"): "REPUBLICAN",
+    ("2024-ms-regular", "TY PINKINS"): "DEMOCRAT",
 
-    df = clean_integer(df, [
-        "election_year",
-        "candidate_votes",
-        "total_votes",
-    ])
+    ("2024-nv-regular", "CHRIS CUNNINGHAM"): "LIBERTARIAN",
+    ("2024-nv-regular", "JACKY S. ROSEN"): "DEMOCRAT",
+    ("2024-nv-regular", "JANINE HANSEN"): "INDEPENDENT AMERICAN",
+    ("2024-nv-regular", "SAM BROWN"): "REPUBLICAN",
 
-    require_values(df, required)
+    ("2008-ms-special", "RONNIE MUSGROVE"): "DEMOCRAT",
+}
 
-    check_nonnegative(df, [
-        "candidate_votes",
-        "total_votes",
-    ])
-
-    if not df["election_year"].between(2000, 2024).all():
-        raise ValueError("wrong election year")
-
-    if (df["candidate_votes"] > df["total_votes"]).any():
-        raise ValueError("Candidate votes exceed total votes")
-    if "state_code" in df.columns:
-        df["state_code"] = df["state_code"].str.upper()
-
-    return df
-
-def clean_historical_election_data(df):
+def clean_historical_election_data(df): #updated function, postgres issues 
     df = df.copy()
 
-    # Validate required fields before aggregation.
     required = [
         "race_id", "election_year", "state",
         "candidate_votes", "total_votes"
@@ -561,25 +601,15 @@ def clean_historical_election_data(df):
     if df[required].isna().any().any():
         raise ValueError("Missing required historical election values")
 
-    # Preserve unnamed write-in votes.
     df["candidate"] = (
-        df["candidate"]
-        .fillna("UNNAMED WRITE-IN")
-        .astype(str)
-        .str.strip()
-        .str.upper()
-    )
+        df["candidate"].fillna("UNNAMED WRITE-IN").astype(str).str.strip().str.upper())
 
-    df["party"] = (
-        df["party"]
-        .astype("string")
-        .str.strip()
-        .str.upper()
-    )
+    df["party"] = df["party"].map(normalize_historical_party)
+    for (race_id, candidate), party in HISTORICAL_PARTY_OVERRIDES.items():
+        mask = ((df["race_id"] == race_id) & (df["candidate"] == candidate))
+        df.loc[mask, "party"] = party
 
-    # Prefer the main-party label when a candidate
-    # appears on multiple ballot lines.
-    def select_party(parties):
+    def select_party(parties): #update helper function w postgres issues 
         values = set(parties.dropna())
 
         if "DEMOCRAT" in values:
@@ -593,13 +623,11 @@ def clean_historical_election_data(df):
 
         return None
 
-    # Check total votes are consistent within each race.
     total_counts = df.groupby("race_id")["total_votes"].nunique()
 
     if (total_counts != 1).any():
         raise ValueError("Inconsistent race total votes")
 
-    # Consolidate ballot lines belonging to the same candidate.
     df = (
         df.groupby(
             ["race_id", "election_year", "state", "candidate"],
@@ -612,7 +640,6 @@ def clean_historical_election_data(df):
         )
     )
 
-    # Calculate Democratic and Republican totals.
     party_votes = (
         df[df["party"].isin(["DEMOCRAT", "REPUBLICAN"])]
         .groupby(["race_id", "party"])["candidate_votes"]
@@ -625,20 +652,16 @@ def clean_historical_election_data(df):
         fill_value=0
     )
 
-    race_totals = (
-        df.groupby("race_id")["total_votes"]
-        .first()
-    )
+    race_totals = df.groupby("race_id")["total_votes"].first()
 
     margins = (
-        100
-        * (party_votes["DEMOCRAT"] - party_votes["REPUBLICAN"])
-        / race_totals
+        100 * (party_votes["DEMOCRAT"] - party_votes["REPUBLICAN"]) / race_totals
     )
 
     df["dem_margin"] = df["race_id"].map(margins)
 
-    # Validate aggregated vote totals.
+    df["dem_margin"] = df["race_id"].map(margins)
+
     checks = df.groupby("race_id").agg(
         vote_sum=("candidate_votes", "sum"),
         total_votes=("total_votes", "first")
@@ -652,6 +675,14 @@ def clean_historical_election_data(df):
 
     if df["dem_margin"].dropna().abs().gt(100).any():
         raise ValueError("Invalid Democratic margins")
+    
+    for col in ["candidate_votes", "total_votes"]:
+        if not (df[col] % 1 == 0).all():
+            raise ValueError(
+                f"{col} contains non-integer values"
+            )
+
+        df[col] = df[col].astype("int64")
 
     return df[
         [

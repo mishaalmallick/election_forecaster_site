@@ -4,11 +4,6 @@ import pandas as pd
 
 
 def extract_posterior_shares(idata):
-    """
-    Return Democratic two-party vote shares.
-
-    Shape: (simulations, races)
-    """
     shares = np.asarray(
         idata.posterior["result"].values,
         dtype=float
@@ -31,12 +26,6 @@ def extract_posterior_shares(idata):
 
 
 def simulate_race_winners(idata):
-    """
-    Each row is one simulated election.
-
-    True means the Democratic candidate wins
-    the modeled two-party contest.
-    """
     shares = extract_posterior_shares(idata)
 
     return shares > 0.5
@@ -73,13 +62,6 @@ def simulate_senate_seats(
     other_holdovers=0,
     tie_break_party="REP",
 ):
-    """
-    Calculate Senate seat distributions.
-
-    Holdovers are seats NOT up for election.
-    This simplified version assumes each modeled
-    race elects either a Democrat or Republican.
-    """
     winners = simulate_race_winners(idata)
 
     if winners.shape[1] != len(race_ids):
@@ -107,8 +89,6 @@ def simulate_senate_seats(
     dem_seats = dem_holdovers + dem_wins
     rep_seats = rep_holdovers + n_races - dem_wins
 
-    # Other seats remain separate in this version.
-    # For control, specify caucus alignment explicitly.
     dem_control = dem_seats >= 51
     rep_control = rep_seats >= 51
 

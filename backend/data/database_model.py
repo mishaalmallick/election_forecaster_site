@@ -251,4 +251,10 @@ class PresidentialResult(Base):
             "candidate_votes >= 0 AND total_votes >= 0",
             name="ck_presidential_votes"
         ),
+        UniqueConstraint(
+            "election_year",
+            "state",
+            "party",
+            name="uq_presidential_year_state_party",
+        ),
     )

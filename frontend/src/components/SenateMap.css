@@ -273,3 +273,21 @@
   color: #30271f;
 }
 
+.tooltip-pending {
+  border-top: 1px solid #a58d70;
+  padding-top: 12px;
+}
+
+.tooltip-pending strong {
+  font-family: "IM Fell English", Georgia, serif;
+  font-size: 20px;
+  font-weight: 400;
+}
+
+.tooltip-pending p {
+  margin: 8px 0 0;
+  font-family: "Caveat", cursive;
+  font-size: 17px;
+  color: #806b53;
+}
+

@@ -4,7 +4,6 @@ from pathlib import Path
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
-from backend.data import database_model 
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
@@ -21,6 +20,7 @@ class Base(DeclarativeBase):
     pass
 
 def create_database():
+    from backend.data import database_model 
     Base.metadata.create_all(bind=engine)
 
 

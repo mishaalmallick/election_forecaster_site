@@ -46,10 +46,7 @@ function color(
   hasRace = false
 ) {
   if (!hasRace) return "#DDD0B8";
-
-  // Election exists, but model hasn't generated a forecast.
   if (probability == null) return "#C4B598";
-
   if (probability >= 0.8) return "#526F89";
   if (probability >= 0.6) return "#91A9B5";
   if (probability >= 0.4) return "#B6A5AD";
@@ -83,10 +80,6 @@ export default function SenateMap({
   const mapRef = useRef<SVGSVGElement | null>(null);
   const tooltipRef = useRef<HTMLDivElement | null>(null);
 
-  // ========================================
-  // ANIMATE THE MAP FROM LEFT TO RIGHT
-  // ========================================
-
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
@@ -100,8 +93,6 @@ export default function SenateMap({
       const paths = Array.from(
         map.querySelectorAll<SVGPathElement>(".map-state")
       );
-
-      // Wait for all state geometries to load.
       if (paths.length < 50) return;
 
       started = true;
@@ -177,10 +168,6 @@ export default function SenateMap({
     };
   }, []);
 
-  // ========================================
-  // STATE DATA
-  // ========================================
-
   const byCode = new Map(
     races.map((race) => [race.state_code, race])
   );
@@ -190,14 +177,19 @@ export default function SenateMap({
     : undefined;
 
   const demProbability =
-    hoveredRace?.dem_win_probability ?? 0;
+    hoveredRace?.dem_win_probability ?? null;
 
-  // Two-party probability assumption.
-  const repProbability = 1 - demProbability;
+  const repProbability =
+    demProbability === null
+      ? null
+      : 1 - demProbability;
 
-  // ========================================
-  // CURSOR-FOLLOWING TOOLTIP
-  // ========================================
+  const hasForecast =
+    hoveredRace != null &&
+    demProbability !== null &&
+    hoveredRace.predicted_margin !== null &&
+    hoveredRace.margin_lower !== null &&
+    hoveredRace.margin_upper !== null;
 
   const updateMousePosition = (
     event: ReactMouseEvent<HTMLElement>
@@ -218,14 +210,12 @@ export default function SenateMap({
     const localX = event.clientX - bounds.left;
     const localY = event.clientY - bounds.top;
 
-    // Flip horizontally when close to the right edge.
     const x =
       event.clientX + tooltipWidth + offset >
       window.innerWidth
         ? localX - tooltipWidth - offset
         : localX + offset;
 
-    // Flip vertically when close to the bottom edge.
     const y =
       event.clientY + tooltipHeight + offset >
       window.innerHeight
@@ -238,26 +228,19 @@ export default function SenateMap({
     });
   };
 
-  // ========================================
-  // FORECAST FORMATTING
-  // ========================================
-
-  const predictedMargin =
-    hoveredRace?.predicted_margin ?? 0;
+  const predictedMargin = hoveredRace?.predicted_margin;
 
   const marginLabel =
-    predictedMargin === 0
-      ? "Even"
-      : `${predictedMargin > 0 ? "D" : "R"} +${Math.abs(
-          predictedMargin
-        ).toFixed(1)}`;
+    predictedMargin == null
+      ? "Pending"
+      : predictedMargin === 0
+        ? "Even"
+        : `${predictedMargin > 0 ? "D" : "R"} +${Math.abs(
+            predictedMargin
+          ).toFixed(1)}`;
 
   const formatBound = (value: number) =>
     `${value > 0 ? "+" : ""}${value.toFixed(1)}`;
-
-  // ========================================
-  // RENDER
-  // ========================================
 
   return (
     <section
@@ -299,10 +282,6 @@ export default function SenateMap({
             />
           </filter>
         </defs>
-
-        {/* =================================
-            INTERACTIVE STATE SHAPES
-        ================================= */}
 
         <Geographies geography={GEO_URL}>
           {({ geographies }) =>
@@ -383,10 +362,6 @@ export default function SenateMap({
           }
         </Geographies>
 
-        {/* =================================
-            HANDWRITTEN STATE LABELS
-        ================================= */}
-
         <Geographies geography={GEO_URL}>
           {({ geographies, projection }) => {
             const path = geoPath().projection(projection);
@@ -437,10 +412,6 @@ export default function SenateMap({
         </Geographies>
       </ComposableMap>
 
-      {/* =================================
-          FLOATING FORECAST TOOLTIP
-      ================================= */}
-
       {hoveredRace && (
         <div
           ref={tooltipRef}
@@ -459,73 +430,71 @@ export default function SenateMap({
             </span>
           </div>
 
-          <div className="tooltip-probabilities">
-            <div className="tooltip-party">
-              <span className="tooltip-dem-label">
-                DEMOCRAT
-              </span>
+          {hasForecast && demProbability !== null &&
+            repProbability !== null ? (
+            <>
+              <div className="tooltip-probabilities">
+                <div className="tooltip-party">
+                  <span className="tooltip-dem-label">
+                    DEMOCRAT
+                  </span>
+                  <strong className="tooltip-dem-value">
+                    {(demProbability * 100).toFixed(1)}%
+                  </strong>
+                </div>
 
-              <strong className="tooltip-dem-value">
-                {(demProbability * 100).toFixed(1)}%
-              </strong>
+                <div className="tooltip-party">
+                  <span className="tooltip-rep-label">
+                    REPUBLICAN
+                  </span>
+                  <strong className="tooltip-rep-value">
+                    {(repProbability * 100).toFixed(1)}%
+                  </strong>
+                </div>
+              </div>
+
+              <div className="tooltip-bar">
+                <div
+                  className="tooltip-dem-bar"
+                  style={{
+                    width: `${demProbability * 100}%`,
+                  }}
+                />
+                <div
+                  className="tooltip-rep-bar"
+                  style={{
+                    width: `${repProbability * 100}%`,
+                  }}
+                />
+              </div>
+
+              <div className="tooltip-details">
+                <div>
+                  <span>Predicted margin</span>
+                  <strong>{marginLabel}</strong>
+                </div>
+
+                <div>
+                  <span>95% credible interval</span>
+                  <strong>
+                    {hoveredRace.margin_lower!.toFixed(1)}
+                    {" to "}
+                    {hoveredRace.margin_upper!.toFixed(1)}
+                  </strong>
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="tooltip-pending">
+              <strong>Forecast pending</strong>
+              <p>
+                This state has a 2026 Senate election,
+                but a model prediction is not yet available.
+              </p>
             </div>
-
-            <div className="tooltip-party">
-              <span className="tooltip-rep-label">
-                REPUBLICAN
-              </span>
-
-              <strong className="tooltip-rep-value">
-                {(repProbability * 100).toFixed(1)}%
-              </strong>
-            </div>
-          </div>
-
-          <div className="tooltip-bar">
-            <div
-              className="tooltip-dem-bar"
-              style={{
-                width: `${demProbability * 100}%`,
-              }}
-            />
-
-            <div
-              className="tooltip-rep-bar"
-              style={{
-                width: `${repProbability * 100}%`,
-              }}
-            />
-          </div>
-
-          <div className="tooltip-details">
-            <div>
-              <span>Predicted margin</span>
-              <strong>{marginLabel}</strong>
-            </div>
-
-            <div>
-              <span>95% credible interval</span>
-              <strong>
-                {formatBound(
-                  hoveredRace.margin_lower
-                )}{" "}
-                to{" "}
-                {formatBound(
-                  hoveredRace.margin_upper
-                )}
-              </strong>
-            </div>
-          </div>
-
-          <div className="tooltip-note">
-            Illustrative forecast
-          </div>
+          )}
         </div>
       )}
-
-      {/* =================================
-          MAP LEGEND
-      ================================= */}
 
       <div className="map-legend">
         <span>Republican favored</span>

@@ -1,7 +1,6 @@
 import pandas as pd
 
 from sqlalchemy.dialects.postgresql import insert
-
 from backend.data.database import SessionLocal
 from backend.data.database_model import (
     Race,
@@ -30,45 +29,26 @@ POLL_COLUMNS = [
     "pct",
 ]
 
-def prepare_polling_for_insert(df):
+def prepare_polling_for_insert(df): ## added helper function 
     df = df.copy()
-
-    # Provisional one-question-per-poll convention
     df["question_id"] = df["poll_id"]
 
-    # Keep only database columns
     df = df[POLL_COLUMNS].copy()
 
-    # Normalize candidate identifiers
-    df["candidate_id"] = df["candidate_id"].replace(
-        {"": None}
-    )
+    df["candidate_id"] = df["candidate_id"].replace({"": None})
 
-    # Convert percentage and sample size
-    df["pct"] = pd.to_numeric(
-        df["pct"], errors="raise"
-    )
+    df["pct"] = pd.to_numeric(df["pct"], errors="raise")
 
-    df["sample_size"] = pd.to_numeric(
-        df["sample_size"], errors="raise"
-    ).astype("Int64")
-
-    # Ensure dates are Python date objects
+    df["sample_size"] = pd.to_numeric(df["sample_size"], errors="raise").astype("Int64")
     for col in ["start_date", "end_date"]:
-        df[col] = pd.to_datetime(
-            df[col], errors="raise"
-        ).dt.date
+        df[col] = pd.to_datetime(df[col], errors="raise").dt.date
 
-    # Replace missing values with Python None
     df = df.astype(object).where(pd.notna(df), None)
 
-    # Validate unique constraint
     keys = ["poll_id", "question_id", "candidate_name"]
 
     if df.duplicated(subset=keys).any():
         raise ValueError("Duplicate polling response keys")
-
-    # Validate required columns
     required = [
         "poll_id",
         "question_id",
@@ -120,7 +100,14 @@ def upsert_dataframe(df, model, conflict_columns):
 
     return len(records)
 
+from backend.data.database_model import PresidentialResult
 
+def insert_historical_presidential_results(cleaned):
+    upsert_dataframe(
+        cleaned,
+        PresidentialResult,
+        ["election_year", "state", "party"],
+    )
 
 # 2026 Senate races
 # def insert_races(df):

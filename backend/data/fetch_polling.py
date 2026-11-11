@@ -122,27 +122,32 @@ def fetch_current_senate_polls_538():
 
 
 def fetch_historical_presidential_results():
-    url = (
-        "https://dataverse.harvard.edu/api/access/"
-        "datafile/13887042"
-    )
+    path = Path("data/historical_presidential_results.tab")
 
-    df = pd.read_csv(url)
-
-    required = {"year", "state"}
-    if not required.issubset(df.columns):
-        raise ValueError(
-            f"Unexpected presidential results columns: {df.columns.tolist()}"
+    if not path.exists():
+        raise FileNotFoundError(
+            f"Presidential results file not found: {path}"
         )
 
-    df = df[df["year"].between(2000, 2024)].copy()
+    df = pd.read_csv(path)
 
-    if "stage" in df.columns:
-        df = df[df["stage"].str.lower() == "gen"]
+    required = {
+        "year",
+        "state",
+        "state_po",
+        "candidate",
+        "party_detailed",
+        "party_simplified",
+        "candidatevotes",
+        "totalvotes",
+    }
 
-    output = Path("data/historical_presidential_results.csv")
-    output.parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(output, index=False)
+    if not required.issubset(df.columns):
+        raise ValueError(
+            f"Unexpected columns: {df.columns.tolist()}"
+        )
+
+    df = df[df["year"].between(1988, 2024)].copy()
 
     return df
 

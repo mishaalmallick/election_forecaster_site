@@ -92,11 +92,7 @@ def calculate_senate_poll_margins(polls, candidates, forecast_date):
             "poll_count", "poll_effective_n",
         ])
 
-    # Each poll question must have a Democratic
-    # and Republican response.
-    group_cols = [
-        "race_id", "poll_id", "question_id"
-    ]
+    group_cols = ["race_id", "poll_id", "question_id"]
 
     pivot = df.pivot_table(
         index=group_cols,
@@ -116,7 +112,6 @@ def calculate_senate_poll_margins(polls, candidates, forecast_date):
     pivot = pivot.dropna(subset=["DEM", "REP"])
     pivot["dem_margin"] = pivot["DEM"] - pivot["REP"]
 
-    # Poll metadata should be unique at question level.
     metadata = df.groupby(group_cols, as_index=False).agg(
         end_date=("end_date", "first"),
         sample_size=("sample_size", "first"),
@@ -153,13 +148,7 @@ def calculate_senate_poll_margins(polls, candidates, forecast_date):
     return pd.DataFrame(records)
 
 
-# ============================================================
-# GENERIC BALLOT MARGIN
-# ============================================================
-
-def calculate_generic_ballot_margin(
-    generic_ballot, forecast_date
-):
+def calculate_generic_ballot_margin(generic_ballot, forecast_date):
     if generic_ballot.empty:
         return np.nan
 
@@ -208,19 +197,7 @@ def calculate_generic_ballot_margin(
     )
 
 
-# ============================================================
-# HISTORICAL PRESIDENTIAL PARTISAN LEAN
-# ============================================================
-
-def calculate_state_partisan_lean(
-    presidential, forecast_date, lookback=3
-):
-    """
-    Calculate historical presidential two-party
-    margins relative to the national popular vote.
-
-    Only elections before forecast_date are used.
-    """
+def calculate_state_partisan_lean(presidential, forecast_date, lookback=3):
     if presidential.empty:
         return pd.DataFrame(columns=[
             "state", "state_partisan_lean"
@@ -316,9 +293,6 @@ def calculate_state_partisan_lean(
     return pd.DataFrame(records)
 
 
-# ============================================================
-# INCUMBENCY
-# ============================================================
 
 def calculate_incumbency_advantage(races):
     df = races[[
@@ -344,9 +318,6 @@ def calculate_incumbency_advantage(races):
     return df[["race_id", "incumbency_advantage"]]
 
 
-# ============================================================
-# FINAL FEATURE DATASET
-# ============================================================
 
 def build_forecast_features(forecast_date):
     data = load_forecasting_data()

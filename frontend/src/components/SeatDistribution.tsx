@@ -25,11 +25,7 @@ interface SeatDistributionProps {
   demMajorityThreshold?: number;
 }
 
-export default function SeatDistribution({
-  data,
-  totalSeats = 100,
-  demMajorityThreshold = 51,
-}: SeatDistributionProps) {
+export default function SeatDistribution({data,totalSeats = 100,demMajorityThreshold = 51,}: SeatDistributionProps) {
   const statistics = useMemo(() => {
     const totalProbability = data.reduce(
       (sum, row) => sum + row.probability,
@@ -46,11 +42,9 @@ export default function SeatDistribution({
       ) / totalProbability;
 
     const demControlProbability =
-      data
-        .filter(
-          (row) => row.dem_seats >= demMajorityThreshold
-        )
-        .reduce(
+      data.filter(
+          (row) => row.dem_seats >= 51
+        ).reduce(
           (sum, row) => sum + row.probability,
           0
         ) / totalProbability;
@@ -208,12 +202,6 @@ export default function SeatDistribution({
           </BarChart>
         </ResponsiveContainer>
       </div>
-
-      <p className="seat-distribution-note">
-        Each bar represents the probability of a
-        particular Democratic seat total.
-        The control threshold is configurable.
-      </p>
     </section>
   );
 }

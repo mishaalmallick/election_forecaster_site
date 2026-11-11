@@ -3,7 +3,7 @@ from sqlalchemy import select
 
 from backend.data.database import SessionLocal
 from backend.data.database_model import Race
-from backend.data.candidate_aliases import CANDIDATE_ALIASES
+from backend.data.database_model import Candidate
 
 
 PRIMARY_PARTIES = {
@@ -11,11 +11,21 @@ PRIMARY_PARTIES = {
     "Republican": "REP",
 }
 
+CANDIDATE_ALIASES = {
+    ("contest-us-2026-mi-senate", "mike rogers"): "S4MI00595",
+    ("contest-us-2026-me-senate", "susan collins"): "S6ME00159",
+    ("contest-us-2026-co-senate", "john hickenlooper"): "S0CO00575",
+    ("contest-us-2026-va-senate", "mark warner"): "S6VA00093",
+    ("contest-us-2026-ia-senate", "ashley hinson"): "S6IA00314",
+    ("contest-us-2026-mi-senate", "haley stevens"): "S6MI00426",
+    ("contest-us-2026-il-senate", "robin kelly"): "S6IL00474",
+    ("contest-us-2026-oh-senate", "greg levy"): "S6OH00395",
+}
 
+## helper function added to avoid duplicates 
 def match_polls_to_races(df):
     df = df.copy()
 
-    # Identify primary polls before modifying subject
     df["primary_party"] = pd.NA
 
     for suffix, party in PRIMARY_PARTIES.items():
@@ -34,7 +44,6 @@ def match_polls_to_races(df):
         "poll_election_type"
     ] = "primary"
 
-    # Remove primary-party suffix for state matching only
     df["race_subject"] = (
         df["subject"]
         .astype("string")
@@ -64,8 +73,6 @@ def match_polls_to_races(df):
         + " "
         + race_df["state"].astype(str)
     )
-
-    # Avoid ambiguous state/race matches
     unique_races = race_df[
         ~race_df["race_subject"].duplicated(keep=False)
     ]
@@ -78,8 +85,6 @@ def match_polls_to_races(df):
     )
 
     return df
-
-from backend.data.database_model import Candidate
 
 
 def match_polls_to_candidates(df):
@@ -119,7 +124,6 @@ def match_polls_to_candidates(df):
         candidate_df["candidate_name"]
     )
 
-    # Group candidate IDs by race and normalized name
     grouped = (
         candidate_df.groupby(
             ["race_id", "_match_name"],
@@ -152,7 +156,6 @@ def match_polls_to_candidates(df):
         if isinstance(ids, list) and len(ids) == 1
         else None
     )
-    # Apply verified aliases only to unmatched responses
     unmatched = df["candidate_match_status"] == "unmatched"
 
     alias_keys = list(
@@ -169,7 +172,6 @@ def match_polls_to_candidates(df):
 
     df.loc[unmatched, "candidate_id"] = alias_ids
 
-    # Mark successfully resolved aliases
     resolved = (
         unmatched
         & df["candidate_id"].notna()
